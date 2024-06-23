@@ -1,0 +1,414 @@
+openapi: 3.0.3
+info:
+  title: Simple Generic ECommerce API
+  version: '1.0'
+  description: >-
+    This is a simple  generic Ecommerce API that is designed to be applicable to
+    a number of different potential storefronts. 
+tags:
+  - name: products
+    description: Access products and information about them.
+  - name: orders
+    description: Access to store orders
+  - name: categories
+    description: Access to category information.
+  - name: users
+    description: Operations about user
+paths:
+  /products:
+    summary: Get information about all products.
+    get:
+      summary: Get all products
+      description: Retrieves product information from the DB in JSON format
+      operationId: get_products
+      responses:
+        '200':
+          description: Sucessful operation
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                      "products": [
+                        {
+                          "name": "Pet Rock",
+                          "price": 14.99,
+                          "description": "Your new best friend",
+                          "category": "pets",
+                          "quantity_available": 14,
+                          "image": "./images/petRock.png"
+                        },
+                        {
+                          "name": "Pet Rock food",
+                          "price": 2.99,
+                          "description": "Food for your new best friend",
+                          "category": "pet supplies",
+                          "quantity_available": 500,
+                          "image": "./images/petRockFood.png"
+                        }
+                      ]
+                    }
+        default:
+          description: Default error sample response
+      tags:
+        - products
+    post:
+      summary: Add a new product to the product list.
+      description: Inserts a new entry to the Products table in the DB.
+      operationId: post_products
+      requestBody:
+        description: A new product object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Entry successfully added
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                        "name": "Pet Rock",
+                        "price": 14.99,
+                        "description": "Your new best friend",
+                        "category": "pets",
+                        "quantity_available": 14,
+                        "image": "./images/petRock.png"
+                      }
+        default:
+          description: Default error sample response
+      tags:
+        - products
+    parameters:
+      - name: searchTerm
+        in: query
+        description: An optional search term for products.
+        required: false
+        schema:
+          type: string
+  /products/{id}:
+    summary: Interact with a specific product by ID.
+    get:
+      summary: Get information about a single product.
+      description: Retrieves a single row from the products table based on product ID.
+      operationId: get_product
+      responses:
+        '200':
+          description: Entry successfully added
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                        "name": "Pet Rock",
+                        "price": 14.99,
+                        "description": "Your new best friend",
+                        "category": "pets",
+                        "quantity_available": 14,
+                        "image": "./images/petRock.png"
+                      }
+        '404':
+          description: Product with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                Product with corresponding ID not found.:
+                  value: '{}'
+        default:
+          description: Default error sample response
+      tags:
+        - products
+    put:
+      summary: Update information for a single product.
+      description: Modifies a single row in the product table of the DB.
+      operationId: put_product
+      requestBody:
+        description: An updated product object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Entry successfully added
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                        "name": "Pet Rock",
+                        "price": 14.99,
+                        "description": "Your new best friend",
+                        "category": "pets",
+                        "quantity_available": 14,
+                        "image": "./images/petRock.png"
+                      }
+        '404':
+          description: Product with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                Product with corresponding ID not found.:
+                  value: '{}'
+        default:
+          description: Default error sample response
+      tags:
+        - products
+    delete:
+      summary: Delete a product.
+      description: Removes a product row from the products table of the DB.
+      operationId: delete_product
+      responses:
+        '404':
+          description: Product with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                Product with corresponding ID not found.:
+                  value: '{}'
+        default:
+          description: Default error sample response
+      tags:
+        - products
+    parameters:
+      - name: id
+        in: path
+        description: The id of the product.
+        required: true
+        schema:
+          type: string
+  /orders:
+    summary: Used to interact with user orders.
+    get:
+      summary: Get information about store orders.
+      description: Gets a list of all orders in JSON format.
+      operationId: get_orders
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - orders
+    post:
+      summary: Add a new order
+      description: Add a new order to the orders table of the DB.
+      operationId: post_orders
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - orders
+  /orders/{id}:
+    summary: Used to interact with individual orders.
+    get:
+      summary: Get details about a single order.
+      description: Retrieves a single row from the orders table of the DB.
+      operationId: get_order
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - orders
+    put:
+      summary: Update details of a single order.
+      description: Updates a row in the orders table of the DB.
+      operationId: put_order
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - orders
+    delete:
+      summary: Delete a single order.
+      description: Deletes a single row from  the orders table of the DB.
+      operationId: delete_order
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - orders
+    parameters:
+      - name: id
+        in: path
+        description: The id of the order.
+        required: true
+        schema:
+          type: string
+  /categories:
+    summary: Get information about categories.
+    get:
+      summary: Gets information about all categories.
+      description: Gets a list of all rows in the categories table of the DB.
+      operationId: get_categories.
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - categories
+    post:
+      summary: Add a new category
+      description: Adds a new row to the categories table of the DB.
+      operationId: post_categories
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - categories
+  /categories/{id}:
+    summary: Interact with individual categories
+    get:
+      summary: Get information about a single category.
+      description: Gets a single row from the categories table of the DB.
+      operationId: get_category
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - categories
+    put:
+      summary: Update information about a category.
+      description: Updates a single row in the categories table of the DB.
+      operationId: put_category
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - categories
+    delete:
+      summary: Delete a category
+      description: Deletes a single row from the categories table of the DB.
+      operationId: delete_category
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - categories
+    parameters:
+      - name: id
+        in: path
+        description: The id of the order.
+        required: true
+        schema:
+          type: string
+  /users:
+    summary: Get information about users.
+    post:
+      summary: Register a new user.
+      description: Adds a new row to the users table of the DB.
+      operationId: post_users
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - users
+  /users/{username}:
+    summary: Get information about individual users.
+    get:
+      summary: get information about a single user.
+      description: Retrieves a single row from the users table of the DB.
+      operationId: get_user
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - users
+    put:
+      summary: Update details of an individual user.
+      description: Updates  a single row in the users table of the DB.
+      operationId: put_user
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - users
+    delete:
+      summary: Delete a user.
+      description: Deletes a row from the users table of the DB.
+      operationId: delete_user
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - users
+    parameters:
+      - name: username
+        in: path
+        description: The username of the user.
+        required: true
+        schema:
+          type: string
+  /users/login:
+    summary: Used to login a user.
+    get:
+      summary: Logs a user in.
+      description: Authenticates a user and retrieves a session token.
+      operationId: login
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - users
+  /users/logout:
+    summary: Logs a user out.
+    get:
+      summary: Logs the logged in user out.
+      description: Performs logout function.
+      operationId: logout
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - users
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+        description:
+          type: string
+        category:
+          type: string
+        quantity_available:
+          type: integer
+        image:
+          type: string
+    Order:
+      type: object
+      properties:
+        username:
+          type: string
+        items:
+          type: array
+          items:
+            type: integer
+        delivery_address:
+          type: string
+        price:
+          type: number
+    Category:
+      type: object
+      properties:
+        name:
+          type: string
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        address:
+          type: string
