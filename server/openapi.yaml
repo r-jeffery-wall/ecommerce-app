@@ -52,6 +52,13 @@ paths:
                     }
         default:
           description: Default error sample response
+      parameters:
+        - name: searchTerm
+          in: query
+          description: An optional search term for products.
+          required: false
+          schema:
+            type: string
       tags:
         - products
     post:
@@ -81,17 +88,17 @@ paths:
                         "quantity_available": 14,
                         "image": "./images/petRock.png"
                       }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              examples:
+                Bad request:
+                  value: {}
         default:
           description: Default error sample response
       tags:
         - products
-    parameters:
-      - name: searchTerm
-        in: query
-        description: An optional search term for products.
-        required: false
-        schema:
-          type: string
   /products/{id}:
     summary: Interact with a specific product by ID.
     get:
@@ -153,6 +160,13 @@ paths:
                         "quantity_available": 14,
                         "image": "./images/petRock.png"
                       }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              examples:
+                Bad request:
+                  value: '{}'
         '404':
           description: Product with corresponding ID not found.
           content:
@@ -169,6 +183,13 @@ paths:
       description: Removes a product row from the products table of the DB.
       operationId: delete_product
       responses:
+        '204':
+          description: Entry successfully deleted.
+          content:
+            application/json:
+              examples:
+                Entry successfully deleted:
+                  value: '{}'
         '404':
           description: Product with corresponding ID not found.
           content:
@@ -189,20 +210,38 @@ paths:
           type: string
   /orders:
     summary: Used to interact with user orders.
-    get:
-      summary: Get information about store orders.
-      description: Gets a list of all orders in JSON format.
-      operationId: get_orders
-      responses:
-        default:
-          description: Default error sample response
-      tags:
-        - orders
     post:
       summary: Add a new order
       description: Add a new order to the orders table of the DB.
       operationId: post_orders
+      requestBody:
+        description: A new order object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
       responses:
+        '200':
+          description: Entry successfully added
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+                      
+                      {
+                        "username": "bob14",
+                        "items": [14, 25, 28, 104],
+                        "delivery_address": "1 Main Street"
+                        "price": 99.99
+                      }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              examples:
+                Bad request:
+                  value: '{}'
         default:
           description: Default error sample response
       tags:
@@ -214,6 +253,27 @@ paths:
       description: Retrieves a single row from the orders table of the DB.
       operationId: get_order
       responses:
+        '200':
+          description: Entry successfully added
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                          "username": "bob14",
+                          "items": [14, 25, 18, 101],
+                          "delivery_address": "1 Main Street",
+                          "price": 99.99,
+                      }
+        '404':
+          description: Order with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                Order with corresponding ID not found.:
+                  value: '{}'
         default:
           description: Default error sample response
       tags:
@@ -222,7 +282,41 @@ paths:
       summary: Update details of a single order.
       description: Updates a row in the orders table of the DB.
       operationId: put_order
+      requestBody:
+        description: An updated order object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
       responses:
+        '200':
+          description: Entry successfully updated
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                          "username": "bob14",
+                          "items": [14, 25, 18, 101],
+                          "delivery_address": "1 Main Street",
+                          "price": 99.99,
+                      }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              examples:
+                Bad request:
+                  value: '{}'
+        '404':
+          description: Order with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                Order with corresponding ID not found.:
+                  value: '{}'
         default:
           description: Default error sample response
       tags:
@@ -232,6 +326,20 @@ paths:
       description: Deletes a single row from  the orders table of the DB.
       operationId: delete_order
       responses:
+        '204':
+          description: Entry successfully deleted.
+          content:
+            application/json:
+              examples:
+                Entry successfully deleted:
+                  value: '{}'
+        '404':
+          description: Order with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                Order with corresponding ID not found.:
+                  value: '{}'
         default:
           description: Default error sample response
       tags:
@@ -250,6 +358,26 @@ paths:
       description: Gets a list of all rows in the categories table of the DB.
       operationId: get_categories.
       responses:
+        '200':
+          description: Sucessful operation
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                      "categories": [
+                        {
+                          "id": 1,
+                          "name": "Pets"
+                        },
+                        {
+                          "id": 2,
+                          "name": "Pet supplies"
+                        }
+                      ]
+                    }
         default:
           description: Default error sample response
       tags:
@@ -258,7 +386,32 @@ paths:
       summary: Add a new category
       description: Adds a new row to the categories table of the DB.
       operationId: post_categories
+      requestBody:
+        description: A new category object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
       responses:
+        '200':
+          description: Entry successfully added
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                        "id": 3,
+                        "name": "special offers."
+                      }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              examples:
+                Bad request:
+                  value: '{}'
         default:
           description: Default error sample response
       tags:
@@ -270,6 +423,25 @@ paths:
       description: Gets a single row from the categories table of the DB.
       operationId: get_category
       responses:
+        '200':
+          description: Entry successfully retrieved
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                        "id": 3,
+                        "name": "special offers."
+                      }
+        '404':
+          description: Category with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                Category with corresponding ID not found.:
+                  value: '{}'
         default:
           description: Default error sample response
       tags:
@@ -278,7 +450,39 @@ paths:
       summary: Update information about a category.
       description: Updates a single row in the categories table of the DB.
       operationId: put_category
+      requestBody:
+        description: An updated category object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
       responses:
+        '200':
+          description: Entry successfully updated
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                        "id": 3,
+                        "name": "even specialer offers."
+                      }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              examples:
+                Bad request:
+                  value: '{}'
+        '404':
+          description: Category with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                Category with corresponding ID not found.:
+                  value: '{}'
         default:
           description: Default error sample response
       tags:
@@ -288,6 +492,20 @@ paths:
       description: Deletes a single row from the categories table of the DB.
       operationId: delete_category
       responses:
+        '204':
+          description: Entry successfully deleted.
+          content:
+            application/json:
+              examples:
+                Entry successfully deleted:
+                  value: '{}'
+        '404':
+          description: Category with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                User with corresponding ID not found.:
+                  value: '{}'
         default:
           description: Default error sample response
       tags:
@@ -295,7 +513,7 @@ paths:
     parameters:
       - name: id
         in: path
-        description: The id of the order.
+        description: The id of the category.
         required: true
         schema:
           type: string
@@ -305,7 +523,34 @@ paths:
       summary: Register a new user.
       description: Adds a new row to the users table of the DB.
       operationId: post_users
+      requestBody:
+        description: A new user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
       responses:
+        '200':
+          description: User successfully registered
+          content:
+            application/json:
+              examples:
+                User successfully registered:
+                  value: |-
+
+                    {
+                      "id": 4,
+                      "username": "sally7",
+                      "password": "supersecretpasswordhash",
+                      "address": "18B Wide Avenue"
+                    }
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              examples:
+                Bad request:
+                  value: {}
         default:
           description: Default error sample response
       tags:
@@ -317,6 +562,27 @@ paths:
       description: Retrieves a single row from the users table of the DB.
       operationId: get_user
       responses:
+        '200':
+          description: User successfully retrieved
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                        "id": 4,
+                        "username": "sally7",
+                        "password": "supersecretpasswordhash",
+                        "address": "18B Wide Avenue"
+                      }
+        '404':
+          description: User with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                User with corresponding ID not found.:
+                  value: '{}'
         default:
           description: Default error sample response
       tags:
@@ -325,7 +591,41 @@ paths:
       summary: Update details of an individual user.
       description: Updates  a single row in the users table of the DB.
       operationId: put_user
+      requestBody:
+        description: An updated user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
       responses:
+        '200':
+          description: Entry successfully updated
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                        "id": 4,
+                        "username": "sally7",
+                        "password": "supersecretpasswordhash",
+                        "address": "4 New Street"
+                      }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              examples:
+                Bad request:
+                  value: '{}'
+        '404':
+          description: User with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                User with corresponding ID not found.:
+                  value: '{}'
         default:
           description: Default error sample response
       tags:
@@ -335,6 +635,20 @@ paths:
       description: Deletes a row from the users table of the DB.
       operationId: delete_user
       responses:
+        '204':
+          description: Entry successfully deleted.
+          content:
+            application/json:
+              examples:
+                Entry successfully deleted:
+                  value: '{}'
+        '404':
+          description: Category with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                User with corresponding ID not found.:
+                  value: '{}'
         default:
           description: Default error sample response
       tags:
@@ -353,6 +667,25 @@ paths:
       description: Authenticates a user and retrieves a session token.
       operationId: login
       responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              examples:
+                Successful login:
+                  value: |-
+
+                    {
+                      "username": "bob14",
+                      "token": "ghbfnsy657"
+                    }
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              examples:
+                Authentication failed:
+                  value: {}
         default:
           description: Default error sample response
       tags:
@@ -364,10 +697,68 @@ paths:
       description: Performs logout function.
       operationId: logout
       responses:
+        '200':
+          description: sucessful logout
+          content:
+            application/json:
+              examples:
+                Successful logout:
+                  value: {}
         default:
           description: Default error sample response
       tags:
         - users
+  /users/{username}/orders:
+    summary: For getting a particular users orders.
+    parameters:
+      - name: username
+        in: path
+        description: The username of the user.
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get all a particular user's orders
+      description: >-
+        Retrieves all orders with a particular user id from the orders table of
+        the DB
+      operationId: get_user_orders
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |-
+                    {
+                      "orders": [
+                        {
+                          "username": "bob14",
+                          "items": [14, 25, 18, 101],
+                          "delivery_address": "1 Main Street",
+                          "price": 99.99
+                        },
+                        {
+                          "username": "bob14",
+                          "items": [1, 78],
+                          "delivery_address": "1 Main Street",
+                          "price": 7.99
+                        }
+                      ]
+                    }
+        '404':
+          description: user not found
+          content:
+            application/json:
+              examples:
+                User not found:
+                  value: '{}'
+        default:
+          description: Default error sample response
+      tags:
+        - users
+        - orders
 components:
   schemas:
     Product:
