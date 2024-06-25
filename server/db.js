@@ -18,6 +18,18 @@ const getUsers = (req, res) => {
     })
 }
 
+// Adds a new user to the DB.
+const new_user = async (req, res) => {
+    const { username, password, address } = await req.body;
+    await pool.query('INSERT INTO users(username, password, address) VALUES($1, $2, $3) RETURNING *', [username, password, address], (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+        }
+        res.status(200).json(results.rows)
+    })
+}
+
 module.exports = {
-    getUsers
+    getUsers,
+    new_user
 }
