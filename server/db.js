@@ -9,8 +9,8 @@ const pool = new Pool({
 })
 
 // DB Queries:
-const getUsers = (req, res) => {
-    pool.query('SELECT * FROM users ORDER BY id ASC', (err, results) => {
+const getUsers = async (req, res) => {
+    await pool.query('SELECT * FROM users ORDER BY id ASC', (err, results) => {
         if (err) {
             throw err
         }
@@ -29,7 +29,18 @@ const new_user = async (req, res) => {
     })
 }
 
+const delete_user = async (req, res) => {
+    const { username } = await req.body
+    await pool.query('DELETE FROM users WHERE users.username = $1', [username], (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+        }
+        res.status(204).send()
+    })
+}
+
 module.exports = {
     getUsers,
-    new_user
+    new_user,
+    delete_user
 }
