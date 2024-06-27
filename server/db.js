@@ -19,7 +19,7 @@ const getUsers = async (req, res) => {
 }
 
 // Adds a new user to the DB.
-const new_user = async (req, res) => {
+const newUser = async (req, res) => {
     const { username, password, address } = await req.body;
     await pool.query('INSERT INTO users(username, password, address) VALUES($1, $2, $3) RETURNING *', [username, password, address], (err, results) => {
         if (err) {
@@ -29,7 +29,8 @@ const new_user = async (req, res) => {
     })
 }
 
-const delete_user = async (req, res) => {
+// Deletes a user from the DB.
+const deleteUser = async (req, res) => {
     const { username } = await req.body
     await pool.query('DELETE FROM users WHERE users.username = $1', [username], (err, results) => {
         if (err) {
@@ -39,8 +40,30 @@ const delete_user = async (req, res) => {
     })
 }
 
+// Finds a user from username.
+const findUserByUsername = async (username) => {
+    await pool.query('SELECT * FROM users WHERE users.username = $1', [username], (err, results) => {
+        if (err) {
+            return err
+        }
+        console.log(results.rows)
+        return results.rows[0]
+    })
+}
+
+const findUserById = async (id) => {
+    await pool.query('SELECT FROM users WHERE users.id = ?', [id], (err, results) => {
+        if (err) {
+            return err
+        }
+        return results.rows[0]
+    })
+}
+
 module.exports = {
     getUsers,
-    new_user,
-    delete_user
+    newUser,
+    deleteUser,
+    findUserByUsername,
+    findUserById
 }
