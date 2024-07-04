@@ -1,5 +1,6 @@
 const Pool = require('pg').Pool;
 const { POSTGRES_USER, POSTGRES_HOST, POSTGRES_DATABASE, POSTGRES_PASSWORD, POSTGRES_PORT } = process.env;
+const hash = require('./crypt').hashPassword;
 const pool = new Pool({
     user: POSTGRES_USER,
     host: POSTGRES_HOST,
@@ -20,12 +21,13 @@ const getUsers = async (req, res) => {
 
 // Adds a new user to the DB.
 const newUser = async (req, res) => {
-    const { username, password, address } = await req.body;
+    const { username, address } = await req.body;
+    const password = await hash(req.body.password);
     await pool.query('INSERT INTO users(username, password, address) VALUES($1, $2, $3) RETURNING *', [username, password, address], (err, results) => {
         if (err) {
             res.status(500).send(err)
         }
-        res.status(200).json(results.rows)
+        res.status(200).json(results.rows[0])
     })
 }
 
@@ -42,19 +44,14 @@ const deleteUser = async (req, res) => {
 
 // Finds a user from username.
 const findUserByUsername = async (username) => {
-    await pool.query('SELECT * FROM users WHERE users.username = $1', [username], (err, results) => {
-        if (err) {
-            return err
-        }
-        console.log(results.rows)
-        return results.rows[0]
-    })
+    const results = await pool.query('SELECT * FROM users WHERE users.username = $1', [username])
+    return results.rows[0]
 }
 
 const findUserById = async (id) => {
     await pool.query('SELECT FROM users WHERE users.id = ?', [id], (err, results) => {
         if (err) {
-            return err
+            console.log(err)
         }
         return results.rows[0]
     })
