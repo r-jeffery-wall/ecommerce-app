@@ -5,7 +5,6 @@ const auth = require('./auth');
 const session = require('express-session');
 const passport = require('passport');
 const morgan = require('morgan');
-const LocalStrategy = require('passport-local').Strategy;
 
 const app = express();
 
