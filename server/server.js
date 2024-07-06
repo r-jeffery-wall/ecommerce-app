@@ -21,6 +21,10 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use((err, req, res, next) => {
+    const status = err.status || 500;
+    res.status(status).send(err)
+})
 
 // Set-up local strategy
 passport.use(auth.setupAuth);
@@ -37,8 +41,8 @@ app.get('/', (req, res) => {
 
 app.post('/users', db.newUser)
 
-app.post('/login', passport.authenticate('local', {failureMessage: true}), (req, res) => {
-    res.send(req.session.message)
+app.post('/login', passport.authenticate('local', {failWithError: true}), (req, res) => {
+    res.status(200).send(`${req.user.username} logged in.`)
 })
 
 app.get('/logout', (req, res, next) => {
