@@ -1,7 +1,7 @@
 const express = require('express');
 const db = require('./db');
 const parser = require('body-parser');
-const auth = require('./auth')
+const auth = require('./auth');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -22,7 +22,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Set-up local strategy
-passport.use(new LocalStrategy (auth.setupAuth));
+passport.use(auth.setupAuth);
 passport.serializeUser((user, done) => {
     done(null, user);
 })
@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
 app.post('/users', db.newUser)
 
 app.post('/login', passport.authenticate('local', {failureMessage: true}), (req, res) => {
-    res.status(200).send("Authentication successful.")
+    res.send(req.session.message)
 })
 
 app.get('/logout', (req, res, next) => {

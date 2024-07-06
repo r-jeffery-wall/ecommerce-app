@@ -43,9 +43,13 @@ const deleteUser = async (req, res) => {
 }
 
 // Finds a user from username.
-const findUserByUsername = async (username) => {
-    const results = await pool.query('SELECT * FROM users WHERE users.username = $1', [username])
-    return results.rows[0]
+const findUserByUsername = async (username, callbackFn) => {
+    try {
+        const results = await pool.query('SELECT * FROM users WHERE users.username = $1', [username])
+        return callbackFn(null, results.rows[0]) 
+    } catch(err) {
+        return callbackFn(err, null)
+    }
 }
 
 const findUserById = async (id) => {
