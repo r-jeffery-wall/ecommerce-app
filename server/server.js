@@ -4,6 +4,7 @@ const parser = require('body-parser');
 const auth = require('./auth');
 const session = require('express-session');
 const passport = require('passport');
+const morgan = require('morgan');
 const LocalStrategy = require('passport-local').Strategy;
 
 const app = express();
@@ -12,6 +13,7 @@ const app = express();
 const PORT = 4001;
 
 // Middlewares
+app.use(morgan('tiny'));
 app.use(parser.json());
 app.use(session({
     secret: process.env.SESSION_SECRET,
