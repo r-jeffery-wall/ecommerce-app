@@ -72,6 +72,38 @@ const getAllProducts = async (req, res) => {
     })
 }
 
+const getProductById = async (req, res) => {
+    const id = req.params.id
+    await pool.query('SELECT * FROM products WHERE id = $1', [id], (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+        }
+        res.status(200).send(results.rows[0])
+    })
+}
+
+const updateProductById = async (req, res) => { // This route needs updating to better handle params.
+    const id = req.params.id
+    const { name, price, description, category, quantity, image } = req.body;
+    const category_id = await getCategoryId(category) 
+    await pool.query(`UPDATE products SET name = $1, price = $2, description = $3, category_id = $4, quantity_available = $5, image = $6 WHERE id = $7 RETURNING *`, [name, price, description, category_id, quantity, image, id], (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+        }
+        res.status(200).send(results.rows[0])
+    })
+}
+
+const deleteProductById = async (req, res) => {
+    const id = req.params.id
+    await pool.query('DELETE FROM products WHERE id = $1', [id], (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+        }
+        res.status(204).send('Product successfully deleted.')
+    })
+}
+
 
 const newProduct = async (req, res) => {
     const { name, price, description, category, quantity, image } = req.body;
@@ -122,6 +154,9 @@ module.exports = {
     findUserById,
     getAllProducts,
     newProduct,
+    getProductById,
+    updateProductById,
+    deleteProductById,
     getAllCategories,
     newCategory
 }
