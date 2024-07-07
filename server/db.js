@@ -9,6 +9,7 @@ const pool = new Pool({
     port: POSTGRES_PORT
 })
 
+// USERS
 // DB Queries:
 const getUsers = async (req, res) => {
     await pool.query('SELECT * FROM users ORDER BY id ASC', (err, results) => {
@@ -46,19 +47,71 @@ const deleteUser = async (req, res) => {
 const findUserByUsername = async (username, callbackFn) => {
     try {
         const results = await pool.query('SELECT * FROM users WHERE users.username = $1', [username])
-        return callbackFn(null, results.rows[0]) 
-    } catch(err) {
+        return callbackFn(null, results.rows[0])
+    } catch (err) {
         return callbackFn(err, null)
     }
 }
 
-const findUserById = async (id) => {
-    await pool.query('SELECT FROM users WHERE users.id = ?', [id], (err, results) => {
+const findUserById = async (id, callbackFn) => {
+    try {
+        const results = await pool.query('SELECT * FROM users WHERE users.id = $1', [id])
+        return callbackFn(null, results.rows[0])
+    } catch (err) {
+        return callbackFn(err, null)
+    }
+}
+
+// PRODUCTS
+const getAllProducts = async (req, res) => {
+    await pool.query('SELECT * FROM products', (err, results) => {
         if (err) {
-            console.log(err)
+            res.status(500).send(err)
         }
-        return results.rows[0]
+        res.status(200).send(results.rows)
     })
+}
+
+
+const newProduct = async (req, res) => {
+    const { name, price, description, category, quantity, image } = req.body;
+    const category_id = await getCategoryId(category)
+    await pool.query('INSERT INTO products(name, price, description, category_id, quantity_available, image) VALUES($1, $2, $3, $4, $5, $6) RETURNING *', [name, price, description, category_id, quantity, image], (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+        }
+        res.status(200).send(results.rows[0])
+    })
+}
+
+// CATEGORIES
+const getAllCategories = async (req, res) => {
+    await pool.query('SELECT * FROM categories', (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+        }
+        res.status(200).send(results.rows)
+    })
+}
+
+
+const newCategory = async (req, res) => {
+    const { name } = req.body;
+    await pool.query('INSERT INTO categories(name) VALUES($1) RETURNING *', [name], (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+        }
+        res.status(200).send(results.rows[0])
+    })
+}
+
+const getCategoryId = async (name) => {
+    try {
+        const results = await pool.query('SELECT id FROM categories WHERE categories.name = $1', [name])
+        return results.rows[0].id
+    } catch (err) {
+        return err
+    }
 }
 
 module.exports = {
@@ -66,5 +119,9 @@ module.exports = {
     newUser,
     deleteUser,
     findUserByUsername,
-    findUserById
+    findUserById,
+    getAllProducts,
+    newProduct,
+    getAllCategories,
+    newCategory
 }

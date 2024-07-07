@@ -6,6 +6,10 @@ const session = require('express-session');
 const passport = require('passport');
 const morgan = require('morgan');
 
+//Routers
+const productsRouter = require('./routers/products');
+const categoriesRouter = require('./routers/categories');
+
 const app = express();
 
 // Variables
@@ -25,6 +29,10 @@ app.use((err, req, res, next) => {
     const status = err.status || 500;
     res.status(status).send(err)
 })
+
+// Router set-up
+app.use('/products', productsRouter);
+app.use('/categories', categoriesRouter);
 
 // Set-up local strategy
 passport.use(auth.setupAuth);
