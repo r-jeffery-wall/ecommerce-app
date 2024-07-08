@@ -1,5 +1,4 @@
 const express = require('express');
-const db = require('./db');
 const parser = require('body-parser');
 const auth = require('./auth');
 const session = require('express-session');
@@ -9,6 +8,7 @@ const morgan = require('morgan');
 //Routers
 const productsRouter = require('./routers/products');
 const categoriesRouter = require('./routers/categories');
+const usersRouter = require('./routers/users');
 
 const app = express();
 
@@ -33,6 +33,7 @@ app.use((err, req, res, next) => {
 // Router set-up
 app.use('/products', productsRouter);
 app.use('/categories', categoriesRouter);
+app.use('/users', usersRouter);
 
 // Set-up local strategy
 passport.use(auth.setupAuth);
@@ -47,8 +48,6 @@ app.get('/', (req, res) => {
     res.status(200).json({message: "Welcome to this simple generic e-commerce API."})
 })
 
-app.post('/users', db.newUser)
-
 app.post('/login', passport.authenticate('local', {failWithError: true}), (req, res) => {
     res.status(200).send(`${req.user.username} logged in.`)
 })
@@ -59,8 +58,6 @@ app.get('/logout', (req, res, next) => {
     })
     res.status(200).send("User logged out.");
 })
-
-app.delete('/users', db.deleteUser)
 
 app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`)

@@ -1,5 +1,5 @@
 const LocalStrategy = require('passport-local').Strategy;
-const db = require('./db');
+const db = require('./db/users');
 const bcrypt = require('bcrypt');
 
 const setupAuth =  new LocalStrategy(
