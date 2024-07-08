@@ -37,8 +37,31 @@ const getCategoryId = async (name) => {
     }
 }
 
+const updateCategory = async (req, res) => {
+    const id = req.params.id;
+    const { name } = req.body;
+    await pool.query('UPDATE categories SET name = $1 WHERE id = $2 RETURNING *', [name, id], (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+        }
+        res.status(200).send(results.rows[0])
+    })
+}
+
+const deleteCategoryById = async (req, res) => {
+    const id = req.params.id;
+    await pool.query('DELETE FROM categories WHERE id = $1', [id], (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+        }
+        res.status(204).send('Entry successfully deleted.')
+    })
+}
+
 module.exports = {
     getAllCategories,
     newCategory,
-    getCategoryId
+    getCategoryId,
+    updateCategory,
+    deleteCategoryById
 }
