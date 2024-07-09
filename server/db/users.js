@@ -19,17 +19,39 @@ const hashPassword = async (password) => {
     return null
 }
 
+// Check authentication for user-specific endpoints.
+const checkAuthentication = async (req, res, next) => {
+    const user = req.user;
+    const requestUser = req.params.username;
+    if (user !== requestUser) {
+        1
+        res.status(403).send('You are not authorised to access this resource.')
+    } else {
+        next()
+    }
+}
 
 
 // USERS
-// DB Queries:
-const getUsers = async (req, res) => {
-    await pool.query('SELECT * FROM users ORDER BY id ASC', (err, results) => {
-        if (err) {
-            throw err
-        }
-        res.status(200).json(results.rows)
-    })
+// Get information on the logged in user:
+const getLoggedInUser = async (req, res) => {
+    console.log(req.session, req.user)
+    if (!req.user) {
+        res.status(400).send('No user logged in.')
+    } else {
+        const userId = req.user.id
+        await pool.query('SELECT * FROM users WHERE id = $1', [userId], (err, results) => {
+            if (err) {
+                throw err
+            }
+            const user = results.rows[0]
+            const userObj = { // We modify the user object in order to not send the password hash back.
+                username: user.username,
+                address: user.address
+            }
+            res.status(200).json(userObj)
+        })
+    }
 }
 
 // Adds a new user to the DB.
@@ -44,15 +66,36 @@ const newUser = async (req, res) => {
     })
 }
 
+// Updates a logged in user's details
+const updatedLoggedInUser = async (req, res) => {
+    if (!req.user) {
+        res.status(400).send('No user logged in.')
+    } else {
+        const userId = req.user.id;
+        const { username, address} = req.body
+        const password = await hashPassword(req.body.password);
+        await pool.query('UPDATE users SET username = $1, password = $2, address = $3 WHERE id = $4 RETURNING *', [username, password, address, userId], (err, results) => {
+            if (err) {
+                res.status(500).send(err)
+            }
+            res.status(200).send(results.rows[0])
+        })
+    }
+}
+
 // Deletes a user from the DB.
-const deleteUser = async (req, res) => {
-    const { username } = await req.body
-    await pool.query('DELETE FROM users WHERE users.username = $1', [username], (err, results) => {
-        if (err) {
-            res.status(500).send(err)
-        }
-        res.status(204).send()
-    })
+const deleteLoggedInUser = async (req, res) => {
+    if (!req.user) {
+        res.status(400).send('No user logged in.')
+    } else {
+        const userId = req.user.id
+        await pool.query('DELETE FROM users WHERE users.id = $1', [userId], (err, results) => {
+            if (err) {
+                res.status(500).send(err)
+            }
+            res.status(204).send()
+        })
+    }
 }
 
 // Finds a user from username.
@@ -76,9 +119,11 @@ const findUserById = async (id, callbackFn) => {
 }
 
 module.exports = {
-    getUsers,
+    checkAuthentication,
+    getLoggedInUser,
     newUser,
-    deleteUser,
+    updatedLoggedInUser,
+    deleteLoggedInUser,
     findUserByUsername,
     findUserById
 }

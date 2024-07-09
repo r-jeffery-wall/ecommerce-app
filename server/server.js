@@ -2,6 +2,7 @@ const express = require('express');
 const parser = require('body-parser');
 const auth = require('./auth');
 const session = require('express-session');
+const usersDb = require('./db/users');
 const passport = require('passport');
 const morgan = require('morgan');
 
@@ -20,8 +21,9 @@ app.use(morgan('tiny'));
 app.use(parser.json());
 app.use(session({
     secret: process.env.SESSION_SECRET,
-    resave: false,
+    resave: true,
     saveUninitialized: true,
+    proxy: true
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -38,10 +40,13 @@ app.use('/users', usersRouter);
 // Set-up local strategy
 passport.use(auth.setupAuth);
 passport.serializeUser((user, done) => {
-    done(null, user);
+    return done(null, user.id);
 })
-passport.deserializeUser((user, done) => {
-    done (null, user)
+passport.deserializeUser((id, done) => {
+    usersDb.findUserById(id, (err, user) => {
+        if (err) return done(err);
+        return done(null, user)
+    })
 })
 
 app.get('/', (req, res) => {
