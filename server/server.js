@@ -10,7 +10,6 @@ const morgan = require('morgan');
 const productsRouter = require('./routers/products');
 const categoriesRouter = require('./routers/categories');
 const usersRouter = require('./routers/user');
-
 const app = express();
 
 // Variables
