@@ -1,4 +1,4 @@
-const pool = require('../dbConnect');
+const pool = require('./dbConnect');
 
 const getAllCategories = async (req, res) => {
     await pool.query('SELECT * FROM categories', (err, results) => {
@@ -11,6 +11,7 @@ const getAllCategories = async (req, res) => {
 
 
 const newCategory = async (req, res) => {
+    console.log(req.body);
     const { name } = req.body;
     await pool.query('INSERT INTO categories(name) VALUES($1) RETURNING *', [name], (err, results) => {
         if (err) {

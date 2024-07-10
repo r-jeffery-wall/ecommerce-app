@@ -1,0 +1,58 @@
+const pool = require('./dbConnect');
+
+// Get information on the current user's cart.
+const getLoggedInUserCart = async (req, res) => {
+    const user = req.user.id;
+    await pool.query('SELECT * FROM carts WHERE user_id = $1', [user], (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+        }
+        res.status(200).send(results.rows[0])
+    })
+}
+
+// Add an item to a user's cart, if the cart does not exist it will be created.
+const addItemToCart = async (req, res) => {
+    const user = req.user.id;
+    const { itemId } = req.body;
+    const currentCart = await getCurrentCart(user);
+    console.log(currentCart);
+    if (!currentCart) {
+        await pool.query('INSERT INTO carts(user_id, items) VALUES($1, $2) RETURNING *', [user, itemId], (err, results) => {
+            if (err) {
+                res.status(500).send(err)
+            }
+            res.status(200).send(results.rows[0])
+        })
+    } else {
+        const newCart = currentCart.items + ", " + itemId
+        await pool.query('UPDATE carts SET items = $1 WHERE user_id = $2 RETURNING *', [newCart, user], (err, results) => {
+            if (err) {
+                res.status(500).send(err)
+            }
+            res.status(200).send(results.rows[0])
+        })
+    }
+}
+
+// Delete a logged in user's cart.
+const deleteLoggedInUserCart = async (req, res) => {
+    const user = req.user.id;
+    await pool.query('DELETE FROM carts WHERE user_id = $1', [user], (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+        }
+        res.status(204).send()
+    })
+}
+
+const getCurrentCart = async (user,) => {
+    const results = await pool.query('SELECT items FROM carts WHERE user_id = $1', [user])
+    console.log(results.rows[0])
+    return results.rows[0]
+}
+module.exports = {
+    getLoggedInUserCart,
+    addItemToCart,
+    deleteLoggedInUserCart
+}

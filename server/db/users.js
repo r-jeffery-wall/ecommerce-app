@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const pool = require('../dbConnect');
+const pool = require('./dbConnect');
 
 const hashPassword = async (password) => {
     try {

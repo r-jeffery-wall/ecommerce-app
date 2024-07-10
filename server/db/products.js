@@ -1,4 +1,5 @@
 const pool = require('./dbConnect');
+const categories = require('./categories');
 
 const getAllProducts = async (req, res) => {
     await pool.query('SELECT * FROM products', (err, results) => {
@@ -22,7 +23,7 @@ const getProductById = async (req, res) => {
 const updateProductById = async (req, res) => { // This route needs updating to better handle params.
     const id = req.params.id
     const { name, price, description, category, quantity, image } = req.body;
-    const category_id = await getCategoryId(category) 
+    const category_id = await categories.getCategoryId(category) 
     await pool.query(`UPDATE products SET name = $1, price = $2, description = $3, category_id = $4, quantity_available = $5, image = $6 WHERE id = $7 RETURNING *`, [name, price, description, category_id, quantity, image, id], (err, results) => {
         if (err) {
             res.status(500).send(err)
@@ -44,7 +45,7 @@ const deleteProductById = async (req, res) => {
 
 const newProduct = async (req, res) => {
     const { name, price, description, category, quantity, image } = req.body;
-    const category_id = await getCategoryId(category)
+    const category_id = await categories.getCategoryId(category)
     await pool.query('INSERT INTO products(name, price, description, category_id, quantity_available, image) VALUES($1, $2, $3, $4, $5, $6) RETURNING *', [name, price, description, category_id, quantity, image], (err, results) => {
         if (err) {
             res.status(500).send(err)
