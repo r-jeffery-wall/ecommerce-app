@@ -1,4 +1,4 @@
-const pool = require('../dbConnect');
+const pool = require('./dbConnect');
 
 const getAllProducts = async (req, res) => {
     await pool.query('SELECT * FROM products', (err, results) => {
