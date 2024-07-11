@@ -25,7 +25,7 @@ const addItemToCart = async (req, res) => {
             res.status(200).send(results.rows[0])
         })
     } else {
-        const newCart = currentCart.items + ", " + itemId
+        const newCart = currentCart + ", " + itemId
         await pool.query('UPDATE carts SET items = $1 WHERE user_id = $2 RETURNING *', [newCart, user], (err, results) => {
             if (err) {
                 res.status(500).send(err)
@@ -42,17 +42,38 @@ const deleteLoggedInUserCart = async (req, res) => {
         if (err) {
             res.status(500).send(err)
         }
-        res.status(204).send()
+        res.status(204).send('Record deleted successfully.')
+    })
+}
+
+// Checkout with the logged in user's cart.
+const checkoutCurrentCart = async (req, res, next) => {
+    const user = req.user.id;
+    const address = req.user.address;
+    const items = await getCurrentCart(user);
+    const { price } = req.body // I'm assuming this will be calculated client-side.
+
+    const results = await pool.query('INSERT INTO orders(user_id, items, delivery_address, price) VALUES($1, $2, $3, $4) RETURNING * ', [user, items, address, price])
+
+    await pool.query('DELETE FROM carts WHERE user_id = $1', [user], (err) => {
+        if (err) {
+            res.status(500).send(err)
+        }
+        res.status(200).send(`Order successfully placed: ${JSON.stringify(results.rows[0])}`)
     })
 }
 
 const getCurrentCart = async (user,) => {
     const results = await pool.query('SELECT items FROM carts WHERE user_id = $1', [user])
-    console.log(results.rows[0])
-    return results.rows[0]
+    if (results.rows[0]) {
+        return results.rows[0].items
+    } else {
+        return null
+    }
 }
 module.exports = {
     getLoggedInUserCart,
     addItemToCart,
-    deleteLoggedInUserCart
+    deleteLoggedInUserCart,
+    checkoutCurrentCart
 }

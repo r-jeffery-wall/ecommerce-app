@@ -14,4 +14,7 @@ cartsRouter.post('/', util.checkForUser, db.addItemToCart);
 // Delete logged in user cart.
 cartsRouter.delete('/', util.checkForUser, db.deleteLoggedInUserCart);
 
+// Checkout current user's cart
+cartsRouter.post('/checkout', util.checkForUser, db.checkoutCurrentCart);
+
 module.exports = cartsRouter;
