@@ -11,6 +11,7 @@ const productsRouter = require('./routers/products');
 const categoriesRouter = require('./routers/categories');
 const usersRouter = require('./routers/user');
 const cartsRouter = require('./routers/carts');
+const ordersRouter = require('./routers/orders');
 const app = express();
 
 // Variables
@@ -37,6 +38,7 @@ app.use('/products', productsRouter);
 app.use('/categories', categoriesRouter);
 app.use('/user', usersRouter);
 app.use('/cart', cartsRouter);
+app.use('/orders', ordersRouter);
 
 // Set-up local strategy
 passport.use(auth.setupAuth);

@@ -11,19 +11,6 @@ const hashPassword = async (password) => {
     return null
 }
 
-// Check authentication for user-specific endpoints.
-const checkAuthentication = async (req, res, next) => {
-    const user = req.user;
-    const requestUser = req.params.username;
-    if (user !== requestUser) {
-        1
-        res.status(403).send('You are not authorised to access this resource.')
-    } else {
-        next()
-    }
-}
-
-
 // USERS
 // Get information on the logged in user:
 const getLoggedInUser = async (req, res) => {
@@ -99,7 +86,6 @@ const findUserById = async (id, callbackFn) => {
 }
 
 module.exports = {
-    checkAuthentication,
     getLoggedInUser,
     newUser,
     updatedLoggedInUser,
