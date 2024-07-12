@@ -6,18 +6,18 @@ const util = require('./util');
 const usersRouter = express.Router();
 
 //Get Logged in User
-usersRouter.get('/', util.checkForUser, db.getLoggedInUser);
+usersRouter.get('/:id', util.checkAuth, db.getLoggedInUser);
 
 // Register a new user.
 usersRouter.post('/', db.newUser)
 
 // Get user orders.
-usersRouter.get('/orders', util.checkForUser, orders.getLoggedInUserOrders);
+usersRouter.get('/:id/orders', util.checkAuth, orders.getLoggedInUserOrders);
 
 // Update details of logged in user.
-usersRouter.put('/', util.checkForUser, db.updatedLoggedInUser)
+usersRouter.put('/:id', util.checkAuth, db.updatedLoggedInUser)
 
 // Delete currently logged in user.
-usersRouter.delete('/', util.checkForUser, db.deleteLoggedInUser)
+usersRouter.delete('/:id', util.checkAuth, db.deleteLoggedInUser)
 
 module.exports = usersRouter;

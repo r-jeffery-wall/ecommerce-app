@@ -14,13 +14,14 @@ const hashPassword = async (password) => {
 // USERS
 // Get information on the logged in user:
 const getLoggedInUser = async (req, res) => {
-    const userId = req.user.id
+    const userId = req.params.id
     await pool.query('SELECT * FROM users WHERE id = $1', [userId], (err, results) => {
         if (err) {
             throw err
         }
         const user = results.rows[0]
         const userObj = { // We modify the user object in order to not send the password hash back.
+            id: user.id,
             username: user.username,
             address: user.address
         }
@@ -43,7 +44,7 @@ const newUser = async (req, res) => {
 
 // Updates a logged in user's details
 const updatedLoggedInUser = async (req, res) => {
-    const userId = req.user.id;
+    const userId = req.params.id;
     const { username, address } = req.body
     const password = await hashPassword(req.body.password);
     await pool.query('UPDATE users SET username = $1, password = $2, address = $3 WHERE id = $4 RETURNING *', [username, password, address, userId], (err, results) => {
@@ -56,7 +57,7 @@ const updatedLoggedInUser = async (req, res) => {
 
 // Deletes a user from the DB.
 const deleteLoggedInUser = async (req, res) => {
-    const userId = req.user.id
+    const userId = req.params.id
     await pool.query('DELETE FROM users WHERE users.id = $1', [userId], (err, results) => {
         if (err) {
             res.status(500).send(err)

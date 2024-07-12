@@ -36,8 +36,8 @@ app.use((err, req, res, next) => {
 // Router set-up
 app.use('/products', productsRouter);
 app.use('/categories', categoriesRouter);
-app.use('/user', usersRouter);
-app.use('/cart', cartsRouter);
+app.use('/users', usersRouter);
+app.use('/carts', cartsRouter);
 app.use('/orders', ordersRouter);
 
 // Set-up local strategy
