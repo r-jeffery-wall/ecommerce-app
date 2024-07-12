@@ -2,7 +2,7 @@ const pool = require('./dbConnect');
 
 // Get logged in user's orders.
 const getLoggedInUserOrders = async (req, res) => {
-    const user = req.user.id;
+    const user = req.params.id;
     await pool.query('SELECT * FROM orders WHERE user_id = $1', [user], (err, results) => {
         if (err) {
             res.status(500).send(err)

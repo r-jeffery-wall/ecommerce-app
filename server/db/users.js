@@ -11,7 +11,6 @@ const hashPassword = async (password) => {
     return null
 }
 
-// USERS
 // Get information on the logged in user:
 const getLoggedInUser = async (req, res) => {
     const userId = req.params.id
