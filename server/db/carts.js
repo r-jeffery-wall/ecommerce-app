@@ -2,10 +2,13 @@ const pool = require('./dbConnect');
 
 // Get information on the current user's cart.
 const getLoggedInUserCart = async (req, res) => {
-    const user = req.user.id;
+    const user = req.params.userId;
     await pool.query('SELECT * FROM carts WHERE user_id = $1', [user], (err, results) => {
         if (err) {
             res.status(500).send(err)
+        }
+        if (!results.rows[0]) {
+            res.status(404).send('User or cart does not exist.')
         }
         res.status(200).send(results.rows[0])
     })
@@ -13,7 +16,7 @@ const getLoggedInUserCart = async (req, res) => {
 
 // Add an item to a user's cart, if the cart does not exist it will be created.
 const addItemToCart = async (req, res) => {
-    const user = req.user.id;
+    const user = req.params.userId;
     const { itemId } = req.body;
     const currentCart = await getCurrentCart(user);
     console.log(currentCart);

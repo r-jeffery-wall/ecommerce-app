@@ -16,6 +16,9 @@ const getProductById = async (req, res) => {
         if (err) {
             res.status(500).send(err)
         }
+        if (!results.rows[0]) {
+            res.status(404).send('No product found.')
+        }
         res.status(200).send(results.rows[0])
     })
 }
@@ -27,6 +30,9 @@ const updateProductById = async (req, res) => { // This route needs updating to 
     await pool.query(`UPDATE products SET name = $1, price = $2, description = $3, category_id = $4, quantity_available = $5, image = $6 WHERE id = $7 RETURNING *`, [name, price, description, category_id, quantity, image, id], (err, results) => {
         if (err) {
             res.status(500).send(err)
+        }
+        if (!results.rows[0]) {
+            res.status(404).send('No product found.')
         }
         res.status(200).send(results.rows[0])
     })

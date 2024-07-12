@@ -19,6 +19,9 @@ const getLoggedInUser = async (req, res) => {
             throw err
         }
         const user = results.rows[0]
+        if (!user) {
+            res.status(404).send('No user found.')
+        }
         const userObj = { // We modify the user object in order to not send the password hash back.
             id: user.id,
             username: user.username,
@@ -49,6 +52,9 @@ const updatedLoggedInUser = async (req, res) => {
     await pool.query('UPDATE users SET username = $1, password = $2, address = $3 WHERE id = $4 RETURNING *', [username, password, address, userId], (err, results) => {
         if (err) {
             res.status(500).send(err)
+        }
+        if (!results.rows[0]) {
+            res.status(404).send('No user found.')
         }
         res.status(200).send(results.rows[0])
     })

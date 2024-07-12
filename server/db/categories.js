@@ -9,6 +9,19 @@ const getAllCategories = async (req, res) => {
     })
 }
 
+const getCategoryById = async (req, res) => {
+    const id = req.params.id;
+    await pool.query('SELECT * FROM categories WHERE id = $1', [id], (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+        }
+        if (!results.rows[0]) {
+            res.status(404).send('No category found.')
+        }
+        res.status(200).send(results.rows[0])
+    })
+}
+
 
 const newCategory = async (req, res) => {
     console.log(req.body);
@@ -37,6 +50,9 @@ const updateCategory = async (req, res) => {
         if (err) {
             res.status(500).send(err)
         }
+        if (!results.rows[0]) {
+            res.status(404).send('Category not found.')
+        }
         res.status(200).send(results.rows[0])
     })
 }
@@ -53,6 +69,7 @@ const deleteCategoryById = async (req, res) => {
 
 module.exports = {
     getAllCategories,
+    getCategoryById,
     newCategory,
     getCategoryId,
     updateCategory,

@@ -6,6 +6,9 @@ const categoriesRouter = express.Router();
 // Get all categories
 categoriesRouter.get('/', db.getAllCategories);
 
+// Get category by id
+categoriesRouter.get('/:id', db.getCategoryById);
+
 // Add a new category
 categoriesRouter.post('/', db.newCategory);
 
