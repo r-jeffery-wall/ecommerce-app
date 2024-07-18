@@ -8,12 +8,16 @@ info:
 tags:
   - name: products
     description: Access products and information about them.
+  - name: carts
+    description: Access information about user carts. Each user has one cart.
   - name: orders
     description: Access to store orders
   - name: categories
     description: Access to category information.
   - name: users
     description: Operations about user
+  - name: admin
+    description: Operations that require a user with admin privileges to be logged in.
 paths:
   /products:
     summary: Get information about all products.
@@ -30,8 +34,7 @@ paths:
                 Successful operation:
                   value: |2-
 
-                      {
-                      "products": [
+                      [
                         {
                           "name": "Pet Rock",
                           "price": 14.99,
@@ -49,7 +52,6 @@ paths:
                           "image": "./images/petRockFood.png"
                         }
                       ]
-                    }
         default:
           description: Default error sample response
       parameters:
@@ -99,6 +101,7 @@ paths:
           description: Default error sample response
       tags:
         - products
+        - admin
   /products/{id}:
     summary: Interact with a specific product by ID.
     get:
@@ -178,6 +181,7 @@ paths:
           description: Default error sample response
       tags:
         - products
+        - admin
     delete:
       summary: Delete a product.
       description: Removes a product row from the products table of the DB.
@@ -201,10 +205,138 @@ paths:
           description: Default error sample response
       tags:
         - products
+        - admin
     parameters:
       - name: id
         in: path
         description: The id of the product.
+        required: true
+        schema:
+          type: string
+  /carts:
+    summary: Used to interact with user carts.
+    get:
+      summary: Get information on all carts.
+      description: Get all cart rows in the DB.
+      operationId: get_carts
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                              "id": 11,
+                              "user_id": 5,
+                              "items": "2"
+                      },
+                      {
+                              "id": 12,
+                              "user_id": 1,
+                              "items": "2, 1, 4"
+                      }
+        default:
+          description: Default error sample response.
+      tags:
+        - carts
+        - admin
+  /carts/{userId}:
+    summary: Used to interact with an individual users cart.
+    get:
+      summary: Get information on an individual user's cart.
+      description: Get one cart row in the DB.
+      operationId: get_user_carts
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                              "id": 11,
+                              "user_id": 5,
+                              "items": "2"
+                      }
+        '404':
+          description: Cart with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                Product with corresponding ID not found.:
+                  value: '{}'
+        default:
+          description: Default error sample response.
+      tags:
+        - carts
+    post:
+      summary: Add an item to a user's cart.
+      description: Updates the carts item information.
+      operationId: add_to_cart
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                              "id": 11,
+                              "user_id": 5,
+                              "items": "2, 1"
+                      }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              examples:
+                Bad request:
+                  value: '{}'
+        '404':
+          description: Cart with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                Product with corresponding ID not found.:
+                  value: '{}'
+        default:
+          description: Default error sample response
+      tags:
+        - carts
+    delete:
+      summary: Delete a user's cart.
+      description: Delete a row from the carts table of the db.
+      operationId: delete_cart
+      responses:
+        '204':
+          description: Entry successfully deleted.
+          content:
+            application/json:
+              examples:
+                Entry successfully deleted:
+                  value: '{}'
+        '404':
+          description: Product with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                Product with corresponding ID not found.:
+                  value: '{}'
+        default:
+          description: Default error sample response
+      tags:
+        - carts
+    parameters:
+      - name: userId
+        in: path
+        description: The id of the user.
         required: true
         schema:
           type: string
@@ -416,6 +548,7 @@ paths:
           description: Default error sample response
       tags:
         - categories
+        - admin
   /categories/{id}:
     summary: Interact with individual categories
     get:
@@ -487,6 +620,7 @@ paths:
           description: Default error sample response
       tags:
         - categories
+        - admin
     delete:
       summary: Delete a category
       description: Deletes a single row from the categories table of the DB.
@@ -510,6 +644,7 @@ paths:
           description: Default error sample response
       tags:
         - categories
+        - admin
     parameters:
       - name: id
         in: path
@@ -541,8 +676,8 @@ paths:
                     {
                       "id": 4,
                       "username": "sally7",
-                      "password": "supersecretpasswordhash",
-                      "address": "18B Wide Avenue"
+                      "address": "18B Wide Avenue",
+                      "admin": false
                     }
         '400':
           description: Bad Request
@@ -555,7 +690,37 @@ paths:
           description: Default error sample response
       tags:
         - users
-  /users/{username}:
+    get:
+      summary: Get all users
+      description: Gets all user rows from the db
+      operationId: get_all_users
+      responses:
+        '200':
+          description: Users successfully retrieved
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                        "id": 4,
+                        "username": "sally7",
+                        "address": "18B Wide Avenue",
+                        "admin": false
+                      },
+                      {
+                        "id": 7,
+                        "username": "bob7",
+                        "address": "24A Narrow Street",
+                        "admin": true
+                      }
+        default:
+          description: Default error sample response
+      tags:
+        - users
+        - admin
+  /users/{id}:
     summary: Get information about individual users.
     get:
       summary: get information about a single user.
@@ -573,8 +738,8 @@ paths:
                       {
                         "id": 4,
                         "username": "sally7",
-                        "password": "supersecretpasswordhash",
                         "address": "18B Wide Avenue"
+                        "admin": false
                       }
         '404':
           description: User with corresponding ID not found.
@@ -609,8 +774,8 @@ paths:
                       {
                         "id": 4,
                         "username": "sally7",
-                        "password": "supersecretpasswordhash",
                         "address": "4 New Street"
+                        "admin": false
                       }
         '400':
           description: Bad request
@@ -654,9 +819,9 @@ paths:
       tags:
         - users
     parameters:
-      - name: username
+      - name: id
         in: path
-        description: The username of the user.
+        description: The id of the user.
         required: true
         schema:
           type: string
@@ -708,12 +873,12 @@ paths:
           description: Default error sample response
       tags:
         - users
-  /users/{username}/orders:
+  /users/{id}/orders:
     summary: For getting a particular users orders.
     parameters:
-      - name: username
+      - name: id
         in: path
-        description: The username of the user.
+        description: The id of the user.
         required: true
         schema:
           type: string
@@ -759,6 +924,124 @@ paths:
       tags:
         - users
         - orders
+  /checkout:
+    summary: Checkouts a logged in user's cart.
+    description: creates an order item in the DB from a cart.
+    post:
+      summary: Checks a user's cart out.
+      description: >-
+        Adds a row to the orders DB matching the cart, deletes the row in the
+        carts db
+      operationId: checkout
+      responses:
+        '200':
+          description: Entry successfully added
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                          "username": "bob14",
+                          "items": [14, 25, 18, 101],
+                          "delivery_address": "1 Main Street",
+                          "price": 99.99,
+                      }
+        '404':
+          description: Cart with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                Order with corresponding ID not found.:
+                  value: '{}'
+        default:
+          description: Default error sample response
+      tags:
+        - carts
+        - orders
+  /users/{id}/makeAdmin:
+    summary: Used to give admin access to a user.
+    parameters:
+      - name: id
+        in: path
+        description: The id of the user.
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Gives the specified user admin rights.
+      description: Modifies the user in the DB to make admin = true
+      operationId: make_admin
+      responses:
+        '200':
+          description: Entry successfully updated
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                        "id": 4,
+                        "username": "sally7",
+                        "password": "supersecretpasswordhash",
+                        "address": "4 New Street"
+                        "admin": true
+                      }
+        '404':
+          description: User with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                User with corresponding ID not found.:
+                  value: '{}'
+        default:
+          description: Default error sample response
+      tags:
+        - users
+        - admin
+  /users/{id}/revokeAdmin:
+    summary: Used to revoke a user's admin access.
+    parameters:
+      - name: id
+        in: path
+        description: The id of the user.
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Revokes the specified user's admin rights.
+      description: ''
+      operationId: revoke_admin
+      responses:
+        '200':
+          description: Entry successfully updated
+          content:
+            application/json:
+              examples:
+                Successful operation:
+                  value: |2-
+
+                      {
+                        "id": 4,
+                        "username": "sally7",
+                        "password": "supersecretpasswordhash",
+                        "address": "4 New Street"
+                        "admin": true
+                      }
+        '404':
+          description: User with corresponding ID not found.
+          content:
+            application/json:
+              examples:
+                User with corresponding ID not found.:
+                  value: '{}'
+        default:
+          description: Default error sample response
+      tags:
+        - users
+        - admin
 components:
   schemas:
     Product:
