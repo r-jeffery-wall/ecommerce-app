@@ -18,6 +18,7 @@ const app = express();
 const PORT = 4001;
 
 // Middlewares
+app.use(express.json());
 app.use(morgan("tiny"));
 app.use(parser.json());
 app.use(
