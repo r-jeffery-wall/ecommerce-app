@@ -76,25 +76,25 @@ const deleteLoggedInUserCart = async (req, res) => {
 };
 
 // Checkout with the logged in user's cart.
-const checkoutCurrentCart = async (req, res, next) => {
+const findCartForCheckout = async (req, res, next) => {
   const user = req.user.id;
   const address = req.user.address;
   const items = await getCurrentCart(user);
-  const { price } = req.body; // I'm assuming this will be calculated client-side.
+  const { price } = req.body;
 
-  const results = await pool.query(
-    "INSERT INTO orders(user_id, items, delivery_address, price) VALUES($1, $2, $3, $4) RETURNING * ",
-    [user, items, address, price],
-  );
+  if (!items) {
+    res.status(400).send("User has no items in their cart!");
+  }
 
-  await pool.query("DELETE FROM carts WHERE user_id = $1", [user], (err) => {
-    if (err) {
-      res.status(500).send(err);
-    }
-    res
-      .status(200)
-      .send(`Order successfully placed: ${JSON.stringify(results.rows[0])}`);
-  });
+  const order = {
+    user_id: user,
+    items: items,
+    delivery_address: address,
+    price: price,
+  };
+
+  req.body = order;
+  next();
 };
 
 const getCurrentCart = async (user) => {
@@ -108,10 +108,11 @@ const getCurrentCart = async (user) => {
     return null;
   }
 };
+
 module.exports = {
   getAllCarts,
   getLoggedInUserCart,
   addItemToCart,
   deleteLoggedInUserCart,
-  checkoutCurrentCart,
+  findCartForCheckout,
 };

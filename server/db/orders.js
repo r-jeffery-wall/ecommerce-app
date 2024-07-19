@@ -41,6 +41,21 @@ const getOrderById = async (req, res) => {
   res.status(200).send(results.rows[0]);
 };
 
+// Add a new order
+const addOrder = async (req, res) => {
+  var { user_id, items, delivery_address, price } = req.body;
+  await pool.query(
+    "INSERT INTO orders(user_id, items, delivery_address, price) VALUES($1, $2, $3, $4) RETURNING *",
+    [user_id, items, delivery_address, price],
+    (err, results) => {
+      if (err) {
+        res.status(500).send(err);
+      }
+      res.status(200).send(results.rows[0]);
+    },
+  );
+};
+
 // Delete an order by Id.
 const deleteOrderById = async (req, res) => {
   const user = req.user.id;
@@ -68,6 +83,7 @@ const deleteOrderById = async (req, res) => {
 module.exports = {
   getAllOrders,
   getLoggedInUserOrders,
+  addOrder,
   getOrderById,
   deleteOrderById,
 };
