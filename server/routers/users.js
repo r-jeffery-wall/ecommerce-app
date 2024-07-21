@@ -1,6 +1,8 @@
 const express = require("express");
 const db = require("../db/users");
 const orders = require("../db/orders");
+const { body } = require("express-validator");
+const validators = require("./validators");
 const util = require("./util");
 
 const usersRouter = express.Router();
@@ -12,7 +14,14 @@ usersRouter.get("/", util.checkAdmin, db.getAllUsers);
 usersRouter.get("/:id", util.checkAuth, db.getLoggedInUser);
 
 // Register a new user.
-usersRouter.post("/", db.newUser);
+usersRouter.post(
+  "/",
+  body("username").notEmpty().isString(),
+  body("password").notEmpty().isStrongPassword(),
+  body("address").notEmpty().isString(),
+  validators.catchErrors,
+  db.newUser,
+);
 
 // Get user orders.
 usersRouter.get("/:id/orders", util.checkAuth, orders.getLoggedInUserOrders);
@@ -24,7 +33,15 @@ usersRouter.post("/:id/makeAdmin", util.checkAdmin, db.makeUserAdmin);
 usersRouter.post("/:id/revokeAdmin", util.checkAdmin, db.revokeUserAdmin);
 
 // Update details of logged in user.
-usersRouter.put("/:id", util.checkAuth, db.updatedLoggedInUser);
+usersRouter.put(
+  "/:id",
+  util.checkAuth,
+  body("username").notEmpty().isString(),
+  body("password").notEmpty().isStrongPassword(),
+  body("address").notEmpty().isString(),
+  validators.catchErrors,
+  db.updatedLoggedInUser,
+);
 
 // Delete currently logged in user.
 usersRouter.delete("/:id", util.checkAuth, db.deleteLoggedInUser);

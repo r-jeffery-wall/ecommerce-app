@@ -1,5 +1,7 @@
 const express = require("express");
 const db = require("../db/categories");
+const { body } = require("express-validator");
+const validators = require("./validators");
 const util = require("./util");
 
 const categoriesRouter = express.Router();
@@ -11,10 +13,22 @@ categoriesRouter.get("/", db.getAllCategories);
 categoriesRouter.get("/:id", db.getCategoryById);
 
 // Add a new category
-categoriesRouter.post("/", util.checkAdmin, db.newCategory);
+categoriesRouter.post(
+  "/",
+  util.checkAdmin,
+  body("name").notEmpty().isString(),
+  validators.catchErrors,
+  db.newCategory,
+);
 
 // Update a category
-categoriesRouter.put("/:id", util.checkAdmin, db.updateCategory);
+categoriesRouter.put(
+  "/:id",
+  util.checkAdmin,
+  body("name").notEmpty().isString(),
+  validators.catchErrors,
+  db.updateCategory,
+);
 
 // Delete a category
 categoriesRouter.delete("/:id", util.checkAuth, db.deleteCategoryById);
